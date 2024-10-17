@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from gsheet import GSheet
 from flask_jsonpify import jsonify
 import pandas as pd
@@ -17,7 +17,10 @@ def getYears():
 @stats.route('/books/permonth')
 def books_per_genre_per_month():
     try:
-        sheet = spreadsheet.getBooks('2023')
+        if not request.headers.get('year'):
+            return jsonify("No year in header")
+
+        sheet = spreadsheet.getBooks(request.headers.get('year'))
         booksPerMonth = sheet.groupby(['genre', 'readed']).size().reset_index(name='count')
         booksPerMonth = booksPerMonth.sort_values(by=['genre', 'readed', 'count'], ascending=False)
         data = booksPerMonth.to_dict(orient='records')
@@ -29,7 +32,10 @@ def books_per_genre_per_month():
 @stats.route('/books/genres')
 def countGenres():
     try:
-        sheet = spreadsheet.getBooks('2023')
+        if not request.headers.get('year'):
+            return jsonify("No year in header")
+        
+        sheet = spreadsheet.getBooks(request.headers.get('year'))
         genres = sheet.groupby('genre')['genre'].count().reset_index(name="count")
         genres = genres.sort_values(by='count', ascending=False)
         data = [{"genre": genre, "count": int(count)} for genre, count in zip(genres['genre'], genres['count'])]
@@ -40,7 +46,10 @@ def countGenres():
 @stats.route('/books/ratings')
 def countRatings():
     try:
-        sheet = spreadsheet.getBooks('2023')
+        if not request.headers.get('year'):
+            return jsonify("No year in header")
+        
+        sheet = spreadsheet.getBooks(request.headers.get('year'))
         countratings = sheet.groupby('rating')['rating'].count().reset_index(name="count")
         countratings = countratings.sort_values(by='rating', ascending=False)
         data = [{"rating": int(rating), "count": int(count)} for rating, count in zip(countratings['rating'], countratings['count'])]
@@ -51,7 +60,10 @@ def countRatings():
 @stats.route('/books/en')
 def countEnBooks():
     try:
-        sheet = spreadsheet.getBooks('2023')
+        if not request.headers.get('year'):
+            return jsonify("No year in header")
+        
+        sheet = spreadsheet.getBooks(request.headers.get('year'))
         countbooks = sheet.groupby('en')['en'].count().reset_index(name="count")
         countbooks = countbooks.sort_values(by='count', ascending=False)
         countbooks['lang'] = countbooks['en'].apply(lambda x: 'en' if x == "1" else 'nl')
