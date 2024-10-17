@@ -22,25 +22,29 @@ class GSheet:
     # Then we return the data as a Pandas DataFrame
         
     def getSheets(self):
-        config = self.getConfigFile()
-        response = requests.get('https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '?alt=json&key=' + config["gsheet_api_key"])
-        data = response.json()
+        try:
+            config = self.getConfigFile()
+            response = requests.get('https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '?alt=json&key=' + config["gsheet_api_key"])
+            data = response.json()
 
-        sheets = [{"name": sheet['properties']['title']} for sheet in data['sheets']]
-        df = pd.json_normalize(sheets)
-        return df
-    
+            sheets = [{"name": sheet['properties']['title']} for sheet in data['sheets']]
+            return sheets
+        except Exception as e:
+            return jsonify("Error while loading the sheets: {}".format(e))
+        
     # Get the books of specifie reading year
     # Because the readed data in the sheet is text and is the name of the month, we also create a dictionary with the names and numbers of the months
     # Then we return the data as a Pandas DataFrame
 
     def getBooks(self, year):
-        config = self.getConfigFile()
+        try:
+            config = self.getConfigFile()
+            response = requests.get(f'https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '/values/' + year + '!A2:Z?alt=json&key=' + config["gsheet_api_key"])
+            data = response.json()
 
-        response = requests.get('https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '/values/' + year + '!A2:Z?alt=json&key=' + config["gsheet_api_key"])
-        data = response.json()
-
-        months_indices = {"januari": "01", "februari": "02", "maart": "03", "april": "04", "mei": "05", "juni": "06", "juli": "07", "augustus": "08", "september": "09", "oktober": "10", "november": "11", "december": "12"}
-        booksOfYear = [{"name": book[0], "author": book[1], "genre": book[2], "readed": f'{months_indices[book[3]]}-{year}', "rating": book[4], "en": book[5]} for book in data['values']]
-        df = pd.json_normalize(booksOfYear)
-        return df
+            months_indices = {"januari": "01", "februari": "02", "maart": "03", "april": "04", "mei": "05", "juni": "06", "juli": "07", "augustus": "08", "september": "09", "oktober": "10", "november": "11", "december": "12"}
+            booksOfYear = [{"name": book[0], "author": book[1], "genre": book[2], "readed": f'{months_indices[book[3]]}-{year}', "rating": book[4], "en": book[5]} for book in data['values']]
+            df = pd.json_normalize(booksOfYear)
+            return df
+        except Exception as e:
+            return jsonify("Error while loading the books: {}".format(e))
