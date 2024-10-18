@@ -2,10 +2,15 @@ import json, requests
 from flask_jsonpify import jsonify
 import pandas as pd
 
+# ------------------------------------------------------------
 # Google Sheets API Class 
 # Where we get the data of a specified Google Spreadsheet.
+# ------------------------------------------------------------
 
 class GSheet:
+
+    def __init__(self):
+        self.gsheet_url = "https://sheets.googleapis.com/v4/spreadsheets/"
     
     # Get config variables
     # This will be used for getting data from Google Sheets
@@ -24,7 +29,7 @@ class GSheet:
     def getSheets(self):
         try:
             config = self.getConfigFile()
-            response = requests.get('https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '?alt=json&key=' + config["gsheet_api_key"])
+            response = requests.get(self.gsheet_url + '/' + config['gsheet_spreadsheet'] + '?alt=json&key=' + config["gsheet_api_key"])
             data = response.json()
 
             sheets = [{"name": sheet['properties']['title']} for sheet in data['sheets']]
@@ -39,7 +44,7 @@ class GSheet:
     def getBooks(self, year):
         try:
             config = self.getConfigFile()
-            response = requests.get(f'https://sheets.googleapis.com/v4/spreadsheets/' + config['gsheet_spreadsheet'] + '/values/' + year + '!A2:Z?alt=json&key=' + config["gsheet_api_key"])
+            response = requests.get(self.gsheet_url + '/' + config['gsheet_spreadsheet'] + '/values/' + year + '!A2:Z?alt=json&key=' + config["gsheet_api_key"])
             data = response.json()
 
             months_indices = {"januari": "01", "februari": "02", "maart": "03", "april": "04", "mei": "05", "juni": "06", "juli": "07", "augustus": "08", "september": "09", "oktober": "10", "november": "11", "december": "12"}
