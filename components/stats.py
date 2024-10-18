@@ -9,6 +9,9 @@ import pandas as pd
 
 class Stats:
 
+    # Initialising self variables 
+    # Can be used through the class
+
     def __init__(self):
         self.spreadsheet = GSheet()
 

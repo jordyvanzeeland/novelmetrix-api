@@ -9,8 +9,14 @@ import pandas as pd
 
 class GSheet:
 
+    # Initialising self variables 
+    # Can be used through the class
+
     def __init__(self):
-        self.gsheet_url = "https://sheets.googleapis.com/v4/spreadsheets/"
+        self.config = self.getConfigFile()
+        self.gsheet_url = "https://sheets.googleapis.com/v4/spreadsheets"
+        self.gsheet_id = self.config['gsheet_spreadsheet']
+        self.gsheet_apikey = self.config['gsheet_api_key']
     
     # Get config variables
     # This will be used for getting data from Google Sheets
@@ -28,8 +34,7 @@ class GSheet:
         
     def getSheets(self):
         try:
-            config = self.getConfigFile()
-            response = requests.get(self.gsheet_url + '/' + config['gsheet_spreadsheet'] + '?alt=json&key=' + config["gsheet_api_key"])
+            response = requests.get(self.gsheet_url + '/' + self.gsheet_id + '?alt=json&key=' + self.gsheet_apikey)
             data = response.json()
 
             sheets = [{"name": sheet['properties']['title']} for sheet in data['sheets']]
@@ -43,8 +48,7 @@ class GSheet:
 
     def getBooks(self, year):
         try:
-            config = self.getConfigFile()
-            response = requests.get(self.gsheet_url + '/' + config['gsheet_spreadsheet'] + '/values/' + year + '!A2:Z?alt=json&key=' + config["gsheet_api_key"])
+            response = requests.get(self.gsheet_url + '/' + self.gsheet_id + '/values/' + year + '!A2:Z?alt=json&key=' + self.gsheet_apikey)
             data = response.json()
 
             months_indices = {"januari": "01", "februari": "02", "maart": "03", "april": "04", "mei": "05", "juni": "06", "juli": "07", "augustus": "08", "september": "09", "oktober": "10", "november": "11", "december": "12"}

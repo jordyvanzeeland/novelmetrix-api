@@ -11,19 +11,19 @@ getStats = Stats()
 def getYears():
     return getStats.getYears()
 
-@app.route('/books/permonth')
+@app.route('/stats/books/permonth')
 def getBooksPerMonth():
     return getStats.books_per_genre_per_month()
 
-@app.route('/books/genres')
+@app.route('/stats/books/genres')
 def getGenres():
     return getStats.countGenres()
 
-@app.route('/books/ratings')
+@app.route('/stats/books/ratings')
 def getRatings():
     return getStats.countRatings()
 
-@app.route('/books/en')
+@app.route('/stats/books/en')
 def getEnBooks():
     return getStats.countEnBooks()
 
