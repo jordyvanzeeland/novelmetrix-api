@@ -3,6 +3,27 @@ import pandas as pd
 from rest_framework.response import Response
 from django.http import JsonResponse
 from ..functions import getBooksByYear
+from ..models import Books as BooksModel
+
+# ----------------------
+# Get all reading years
+# ----------------------
+
+@api_view(['GET'])
+def getReadingYears(request):
+    try:
+        books = BooksModel.objects.filter()
+        books_data = books.values()
+
+        df = pd.DataFrame.from_records(books_data)
+        df['readed'] = pd.to_datetime(df['readed'], errors='coerce')
+        df['year']= df['readed'].dt.year
+        years = df.groupby('year')['year'].count().reset_index(name="count")
+
+        return Response(years['year'])
+
+    except Exception as e:
+        return JsonResponse({'error': 'An error occurred: {}'.format(str(e))}, safe=False)
 
 # ------------------------------------------------------------------
 # Get books of selected year and filter it per month and per genre
@@ -15,6 +36,9 @@ def books_per_genre_per_month(request):
             return JsonResponse({'error': 'No year in header'}, safe=False)
         
         df = getBooksByYear(request.META.get('HTTP_YEAR'));
+        df['readed'] = pd.to_datetime(df['readed'], format='%Y-%m-%d')
+        df['readed'] = df['readed'].dt.strftime('%m-%Y')
+
         booksPerMonth = df.groupby(['genre', 'readed']).size().reset_index(name='count')
         booksPerMonth = booksPerMonth.sort_values(by=['genre', 'readed', 'count'], ascending=False)
         data = booksPerMonth.to_dict(orient='records')
