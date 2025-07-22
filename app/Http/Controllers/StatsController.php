@@ -30,9 +30,7 @@ class StatsController extends Controller
                 ->selectRaw('genre, DATE_FORMAT(readed, "%m-%Y") as readed, COUNT(*) as count')
                 ->whereYear('readed', $year)
                 ->groupBy('genre', 'readed')
-                ->orderBy('genre')
-                ->orderBy('readed')
-                ->orderByDesc('count')
+                ->orderBy('count')
                 ->get();
 
         return response()->json($books, 200);
@@ -49,7 +47,7 @@ class StatsController extends Controller
                 ->selectRaw('genre, COUNT(*) as count')
                 ->whereYear('readed', $year)
                 ->groupBy('genre')
-                ->orderBy('count')
+                ->orderByDesc('count')
                 ->get();
 
         return response()->json($genres, 200);
