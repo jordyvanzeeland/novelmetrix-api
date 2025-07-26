@@ -3,11 +3,37 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Repositories\StatsRepository;
 use Illuminate\Http\Request;
 use DB;
 
 class StatsController extends Controller
 {
+    protected $statsRepo;
+
+    public function __construct(StatsRepository $statsRepo){
+        $this->statsRepo = $statsRepo;
+    }
+
+    public function getDashStats(Request $request){
+        $year = $request->header('year');
+
+        if (!$year) {
+            return response()->json(['error' => 'No year in header'], 400);
+        }
+
+        $books = $this->statsRepo->getBooksPerGenrePerMonth($year);
+        $genres = $this->statsRepo->getGenreCounts($year);
+        $ratings = $this->statsRepo->getRatingCounts($year);
+        $languages = $this->statsRepo->getLanguageCounts($year);
+
+        return response()->json([
+            'books' => $books,
+            'genres' => $genres,
+            'ratings' => $ratings,
+            'languages' => $languages
+        ], 200);
+    }
 
     public function getReadingYears(Request $request){
         $years = DB::table('books')
@@ -17,80 +43,5 @@ class StatsController extends Controller
                 ->get();
 
         return response()->json($years);
-    }
-
-    public function booksPerGenrePerMonth(Request $request){
-        $year = $request->header('year');
-
-        if (!$year) {
-            return response()->json(['error' => 'No year in header'], 400);
-        }
-
-        $books = DB::table('books')
-                ->selectRaw('genre, DATE_FORMAT(readed, "%m-%Y") as readed, COUNT(*) as count')
-                ->whereYear('readed', $year)
-                ->groupBy('genre', 'readed')
-                ->orderByDesc('count')
-                ->get();
-
-        return response()->json($books, 200);
-    }
-
-    public function countGenres(Request $request){
-        $year = $request->header('year');
-
-        if (!$year) {
-            return response()->json(['error' => 'No year in header'], 400);
-        }
-
-        $genres = DB::table('books')
-                ->selectRaw('genre, COUNT(*) as count')
-                ->whereYear('readed', $year)
-                ->groupBy('genre')
-                ->orderByDesc('count')
-                ->get();
-
-        return response()->json($genres, 200);
-    }
-
-    public function countRatings(Request $request){
-        $year = $request->header('year');
-
-        if (!$year) {
-            return response()->json(['error' => 'No year in header'], 400);
-        }
-
-        $ratings = DB::table('books')
-                ->selectRaw('rating, COUNT(*) as count')
-                ->whereYear('readed', $year)
-                ->groupBy('rating')
-                ->orderByDesc('rating')
-                ->get();
-
-        return response()->json($ratings, 200);
-    }
-
-    public function countEnBooks(Request $request){
-        $year = $request->header('year');
-
-        if (!$year) {
-            return response()->json(['error' => 'No year in header'], 400);
-        }
-
-        $enbooks = DB::table('books')
-                ->selectRaw('
-                    COUNT(*) as count,
-                    CASE WHEN COALESCE(en, 0) = 1 THEN "en" ELSE "nl" END as lang,
-                    CASE WHEN COALESCE(en, 0) = 1 THEN "English" ELSE "Nederlands" END as name
-                ')
-                ->whereYear('readed', $year)
-                ->groupByRaw('
-                    CASE WHEN COALESCE(en, 0) = 1 THEN "en" ELSE "nl" END,
-                    CASE WHEN COALESCE(en, 0) = 1 THEN "English" ELSE "Nederlands" END
-                ')
-                ->orderByDesc('count')
-                ->get();
-
-        return response()->json($enbooks, 200);
     }
 }

@@ -19,11 +19,7 @@ Route::post("register", 'App\Http\Controllers\UserController@registerUser');
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    Route::get("books/permonth", 'App\Http\Controllers\StatsController@booksPerGenrePerMonth');
-    Route::get("books/genres/count", 'App\Http\Controllers\StatsController@countGenres');
-    Route::get("books/ratings", 'App\Http\Controllers\StatsController@countRatings');
-    Route::get("books/en", 'App\Http\Controllers\StatsController@countEnBooks');
-
+    Route::get("books/stats", 'App\Http\Controllers\StatsController@getDashStats');
     Route::get("years", 'App\Http\Controllers\StatsController@getReadingYears');
 });
 
