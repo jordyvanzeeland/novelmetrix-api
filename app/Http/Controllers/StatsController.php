@@ -18,10 +18,6 @@ class StatsController extends Controller
     public function getDashStats(Request $request){
         $year = $request->header('year');
 
-        if (!$year) {
-            return response()->json(['error' => 'No year in header'], 400);
-        }
-
         $books = $this->statsRepo->getBooksPerGenrePerMonth($year);
         $genres = $this->statsRepo->getGenreCounts($year);
         $ratings = $this->statsRepo->getRatingCounts($year);

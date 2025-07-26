@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\roleMiddleware;
+use App\Http\Middleware\YearMiddleware;
 
 Route::group([
     'middleware' => 'api',
@@ -17,9 +17,14 @@ Route::group([
 Route::post("register", 'App\Http\Controllers\UserController@registerUser');
 
 Route::group([
+    'middleware' => YearMiddleware::class
+], function ($router) {
+    Route::get('books/stats', 'App\Http\Controllers\StatsController@getDashStats');
+});
+
+Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    Route::get("books/stats", 'App\Http\Controllers\StatsController@getDashStats');
     Route::get("years", 'App\Http\Controllers\StatsController@getReadingYears');
 });
 
