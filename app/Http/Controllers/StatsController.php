@@ -1,27 +1,70 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use App\Repositories\StatsRepository;
 use Illuminate\Http\Request;
 use DB;
 
 class StatsController extends Controller
 {
-    protected $statsRepo;
+    public function __construct(){
+        $this->middleware('auth:api');
+    }
 
-    public function __construct(StatsRepository $statsRepo){
-        $this->statsRepo = $statsRepo;
+    public function getBooksPerGenrePerMonth($year)
+    {
+        return DB::table('books')
+            ->selectRaw('genre, readed, COUNT(*) as count')
+            ->whereBetween('readed', ["{$year}-01-01", "{$year}-12-01"])
+            ->groupBy('genre', 'readed')
+            ->orderByDesc('count')
+            ->get();
+    }
+
+    public function getGenreCounts($year)
+    {
+        return DB::table('books')
+            ->selectRaw('genre, COUNT(*) as count')
+            ->whereBetween('readed', ["{$year}-01-01", "{$year}-12-01"])
+            ->groupBy('genre')
+            ->orderByDesc('count')
+            ->get();
+    }
+
+    public function getRatingCounts($year)
+    {
+        return DB::table('books')
+            ->selectRaw('rating, COUNT(*) as count')
+            ->whereBetween('readed', ["{$year}-01-01", "{$year}-12-01"])
+            ->groupBy('rating')
+            ->orderByDesc('rating')
+            ->get();
+    }
+
+    public function getLanguageCounts($year)
+    {
+        return DB::table('books')
+            ->selectRaw('
+                COUNT(*) as count,
+                CASE WHEN COALESCE(en, 0) = 1 THEN "en" ELSE "nl" END as lang,
+                CASE WHEN COALESCE(en, 0) = 1 THEN "English" ELSE "Nederlands" END as name
+            ')
+            ->whereBetween('readed', ["{$year}-01-01", "{$year}-12-01"])
+            ->groupByRaw('
+                CASE WHEN COALESCE(en, 0) = 1 THEN "en" ELSE "nl" END,
+                CASE WHEN COALESCE(en, 0) = 1 THEN "English" ELSE "Nederlands" END
+            ')
+            ->orderByDesc('count')
+            ->get();
     }
 
     public function getDashStats(Request $request){
         $year = $request->header('year');
 
-        $books = $this->statsRepo->getBooksPerGenrePerMonth($year);
-        $genres = $this->statsRepo->getGenreCounts($year);
-        $ratings = $this->statsRepo->getRatingCounts($year);
-        $languages = $this->statsRepo->getLanguageCounts($year);
+        $books = $this->getBooksPerGenrePerMonth($year);
+        $genres = $this->getGenreCounts($year);
+        $ratings = $this->getRatingCounts($year);
+        $languages = $this->getLanguageCounts($year);
 
         return response()->json([
             'books' => $books,
