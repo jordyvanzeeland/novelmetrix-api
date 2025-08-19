@@ -40,4 +40,15 @@ Route::group([
     Route::get("years", 'App\Http\Controllers\StatsController@getReadingYears');
 });
 
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'write'
+], function ($router) {
+    Route::get('stories', 'App\Http\Controllers\Write\StoriesController@getStories');
+    Route::get('stories/{id}', 'App\Http\Controllers\Write\StoriesController@getStoryByID');
+    Route::post('stories/insert', 'App\Http\Controllers\Write\StoriesController@insertStory');
+    Route::put('stories/{id}/update', 'App\Http\Controllers\Write\StoriesController@updateStory');
+    Route::delete('stories/{id}/delete', 'App\Http\Controllers\Write\StoriesController@deleteStory');
+});
+
 
