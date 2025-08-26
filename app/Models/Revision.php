@@ -19,4 +19,8 @@ class Revision extends Model
         'storyid',
     ];
 
+    public function story(){
+        return $this->hasOne('App\Models\Story', 'id', 'storyid');
+    }
+
 }

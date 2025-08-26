@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Write;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Story;
+use App\Models\Revision;
+use App\Models\Chapter;
 use Illuminate\Http\Request;
 
 class StoriesController extends BaseController
@@ -27,7 +29,33 @@ class StoriesController extends BaseController
             ], 404);
         }
 
-        return response()->json($story, 200);
+        // Get revisions of a story
+
+        $revisionsQuery = Revision::where('storyid', $story->id);
+        $revisionid = request()->input('revisionid');
+
+        if($revisionid){
+            $revision = $revisionsQuery->where('id', $revisionid)->first();
+        }else{
+            $revision = $revisionsQuery->latest('id')->first();;
+        }
+
+        // Get chatpers of a story
+
+        $chaptersQuery = Chapter::where('revisionid', $revision->id);
+        $chapterid = request()->input('chapterid');
+
+        if($chapterid){
+            $chapters = $chaptersQuery->where('id', $chapterid)->first();
+        }else{
+            $chapters = $chaptersQuery->get();
+        }
+
+        return response()->json([
+            'story' => $story,
+            'revisions' => $revision,
+            'chapters' => $chapters
+        ], 200);
     }
 
     public function insertStory(Request $request){
