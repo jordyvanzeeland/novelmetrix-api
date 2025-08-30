@@ -29,20 +29,7 @@ class StoriesController extends BaseController
             ], 404);
         }
 
-        // Get revisions of a story
-
-        $revisionsQuery = Revision::where('storyid', $story->id);
-        $revisionid = request()->input('revisionid');
-
-        if($revisionid){
-            $revision = $revisionsQuery->where('id', $revisionid)->first();
-        }else{
-            $revision = $revisionsQuery->latest('id')->first();;
-        }
-
-        // Get chatpers of a story
-
-        $chaptersQuery = Chapter::where('revisionid', $revision->id);
+        $chaptersQuery = Chapter::where('storyid', $storyid);
         $chapterid = request()->input('chapterid');
 
         if($chapterid){
@@ -53,7 +40,6 @@ class StoriesController extends BaseController
 
         return response()->json([
             'story' => $story,
-            'revisions' => $revision,
             'chapters' => $chapters
         ], 200);
     }
@@ -68,8 +54,6 @@ class StoriesController extends BaseController
     }
 
     public function updateStory(Request $request, int $storyid){
-        // Todo: When chapter/revision changes, the update timestamp has also to be updated
-
         $story = Story::find($storyid);
 
         if(!$story){
@@ -87,8 +71,6 @@ class StoriesController extends BaseController
     }
 
     public function deleteStory(int $storyid){
-        // Todo: Check for chapters and revisions to delete from story
-
         $story = Story::find($storyid);
 
         if(!$story){

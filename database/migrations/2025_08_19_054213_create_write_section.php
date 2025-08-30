@@ -18,15 +18,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('revisions', function (Blueprint $table) {
-            $table->id();
-            $table->integer('storyid');
-            $table->timestamps();
-        });
-
         Schema::create('chapters', function (Blueprint $table) {
             $table->id();
-            $table->integer('revisionid');
+            $table->integer('storyid');
             $table->string('name');
             $table->text('content');
             $table->timestamps();
@@ -39,7 +33,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stories');
-        Schema::dropIfExists('revisions');
         Schema::dropIfExists('chapters');
     }
 };
