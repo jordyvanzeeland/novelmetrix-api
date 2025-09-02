@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Book;
+use App\Repositories\BookRepository;
 use Illuminate\Http\Request;
 
 class BooksController extends Controller
 {
-    public function __construct(){
+    private $BookRepository;
+
+    public function __construct(BookRepository $bookRepository){
         $this->middleware('auth:api');
+        $this->BookRepository = $bookRepository;
     }
 
     public function getUserBooks(Request $request)
@@ -45,14 +49,7 @@ class BooksController extends Controller
     }
 
     public function getBook(int $bookid){
-        $book = Book::find($bookid);
-
-        if(!$bookid){
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
-        }
-
+        $book = $this->BookRepository->findBookById($bookid);
         return response()->json($book, 200);
     }
 
@@ -69,13 +66,7 @@ class BooksController extends Controller
     }
 
     public function updateBook(Request $request, int $bookid){
-        $book = Book::find($bookid);
-
-        if(!$book){
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
-        }
+        $book = $this->BookRepository->findBookById($bookid);
 
         $user = Auth::user();
         $request["userid"] = $user->id;
@@ -89,14 +80,7 @@ class BooksController extends Controller
     }
 
     public function deleteBook(int $bookid){
-        $book = Saldo::find($bookid);
-        
-        if(!$book){
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
-        }
-
+        $book = $this->BookRepository->findBookById($bookid);
         $book->delete();
         
         return response()->json([

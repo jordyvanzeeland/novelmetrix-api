@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Story;
 use App\Models\Revision;
 use App\Models\Chapter;
+use App\Repositories\StoryRepository;
 use Illuminate\Http\Request;
 
 class StoriesController extends BaseController
 {
-    public function __construct(){
+    private $StoryRepository;
+
+    public function __construct(StoryRepository $storyRepository){
         $this->middleware('auth:api');
+        $this->StoryRepository = $storyRepository;
     }
 
     public function getStories(){
@@ -21,22 +25,9 @@ class StoriesController extends BaseController
     }
 
     public function getStoryByID(int $storyid){
-        $story = Story::find($storyid);
-
-        if(!$story){
-            return response()->json([
-                'message' => 'Story not found'
-            ], 404);
-        }
-
-        $chaptersQuery = Chapter::where('storyid', $storyid);
+        $story = $this->StoryRepository->findStoryById($storyid);
         $chapterid = request()->input('chapterid');
-
-        if($chapterid){
-            $chapters = $chaptersQuery->where('id', $chapterid)->first();
-        }else{
-            $chapters = $chaptersQuery->get();
-        }
+        $chapters = $this->StoryRepository->findChaptersOfStory($storyid, $chapterid);
 
         return response()->json([
             'story' => $story,
@@ -54,14 +45,7 @@ class StoriesController extends BaseController
     }
 
     public function updateStory(Request $request, int $storyid){
-        $story = Story::find($storyid);
-
-        if(!$story){
-            return response()->json([
-                'message' => 'Story not found'
-            ], 404);
-        }
-
+        $story = $this->StoryRepository->findStoryById($storyid);
         $story->update($request->all());
 
         return response()->json([
@@ -71,14 +55,7 @@ class StoriesController extends BaseController
     }
 
     public function deleteStory(int $storyid){
-        $story = Story::find($storyid);
-
-        if(!$story){
-            return response()->json([
-                'message' => 'Story not found'
-            ], 404);
-        }
-
+        $story = $this->StoryRepository->findStoryById($storyid);
         $story->delete();
 
         return response()->json([
