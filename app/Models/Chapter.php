@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 class Chapter extends Model
 {
     use HasFactory, Notifiable;
-    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -17,13 +16,8 @@ class Chapter extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'revisionid',
+        'storyid',
         'name',
         'content'
     ];
-
-    public function revision(){
-        return $this->hasOne('App\Models\Revision', 'id', 'revisionid');
-    }
-
 }

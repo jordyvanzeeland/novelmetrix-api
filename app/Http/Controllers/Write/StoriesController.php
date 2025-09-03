@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Write;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Story;
-use App\Models\Revision;
 use App\Models\Chapter;
 use App\Repositories\StoryRepository;
 use Illuminate\Http\Request;

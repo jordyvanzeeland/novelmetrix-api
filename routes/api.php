@@ -49,6 +49,10 @@ Route::group([
     Route::post('stories/insert', 'App\Http\Controllers\Write\StoriesController@insertStory');
     Route::put('stories/{id}/update', 'App\Http\Controllers\Write\StoriesController@updateStory');
     Route::delete('stories/{id}/delete', 'App\Http\Controllers\Write\StoriesController@deleteStory');
+
+    Route::post('stories/{id}/chapters/insert', 'App\Http\Controllers\Write\ChaptersController@insertChapter');
+    Route::put('stories/{id}/chapter/{chapter}/update', 'App\Http\Controllers\Write\ChaptersController@updateChapter');
+    Route::delete('stories/{id}/chapter/{chapter}/delete', 'App\Http\Controllers\Write\ChaptersController@deleteChapter');
 });
 
 
