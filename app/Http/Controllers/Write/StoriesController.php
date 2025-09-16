@@ -24,7 +24,7 @@ class StoriesController extends BaseController
     }
 
     public function getStoryByID(int $storyid){
-        $story = $this->StoryRepository->findStoryById($storyid);
+        $story = Story::findOrFail($storyid);
         $chapterid = request()->input('chapterid');
         $chapters = $this->StoryRepository->findChaptersOfStory($storyid, $chapterid);
 
@@ -44,7 +44,7 @@ class StoriesController extends BaseController
     }
 
     public function updateStory(Request $request, int $storyid){
-        $story = $this->StoryRepository->findStoryById($storyid);
+        $story = Story::findOrFail($storyid);
         $story->update($request->all());
 
         return response()->json([
@@ -54,7 +54,13 @@ class StoriesController extends BaseController
     }
 
     public function deleteStory(int $storyid){
-        $story = $this->StoryRepository->findStoryById($storyid);
+        $story = Story::findOrFail($storyid);
+        $chapters = $this->StoryRepository->findChaptersOfStory($storyid);
+
+        foreach($chapters as $chapter){
+            $chapter->delete();
+        }
+
         $story->delete();
 
         return response()->json([
