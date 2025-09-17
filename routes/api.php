@@ -20,7 +20,7 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'books'
 ], function ($router) {
-    Route::get('get', 'App\Http\Controllers\BooksController@getUserBooks');
+    Route::get('{year}', 'App\Http\Controllers\BooksController@getBooksByYear');
     Route::get('current', 'App\Http\Controllers\BooksController@getCurrentReadingBookOfUser');
     Route::post('insert', 'App\Http\Controllers\BooksController@insertBook');
     Route::get('get/{id}', 'App\Http\Controllers\BooksController@getBook');

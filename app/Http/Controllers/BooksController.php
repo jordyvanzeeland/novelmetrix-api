@@ -40,6 +40,11 @@ class BooksController extends Controller
         return response()->json($books, 200);
     }
 
+    public function getBooksByYear(string $year){
+        $books = Book::whereYear('readed', $year)->get();
+        return response()->json($books, 200);
+    }
+
     public function getCurrentReadingBookOfUser(){
         $user = Auth::user();
         $books = Book::whereNull('readed')
